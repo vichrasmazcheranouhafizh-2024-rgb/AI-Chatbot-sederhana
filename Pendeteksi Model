@@ -1,0 +1,9 @@
+# ==========================================
+# 🔍 PENDETEKSI MODEL, MODEL DETECTOR
+# Jalankan ini untuk mengecek nama model yang bisa digunakan, Run this to check the available model names !
+# ==========================================
+
+print("Daftar model Flash yang tersedia saat ini, List of currently available Flash models :")
+for m in client.models.list():
+    if "flash" in m.name.lower():
+        print(f"✅ {m.name}")
