@@ -1,0 +1,4 @@
+api_key = getpass.getpass("Masukkan API Key Gemini Anda di sini, Enter your Gemini API key here:  ")
+client = genai.Client(api_key=api_key)
+
+print("API Key berhasil dikonfigurasi pada Codingan Anda, The API key has been successfully configured in your code! 🔒")
