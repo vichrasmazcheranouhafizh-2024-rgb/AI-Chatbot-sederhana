@@ -1,0 +1,93 @@
+import markdown
+from IPython.display import display, HTML
+from google.colab import output
+
+# -------------------------------------------------------------------------
+# 1. MAGIC AREA: Fungsi Render Gelembung Chat (HTML/CSS + Markdown Parser)
+# -------------------------------------------------------------------------
+def tampilkan_chat_profesional(pengirim, pesan, is_user=False):
+    if is_user:
+        # User: Hijau (sebelah kanan)
+        warna_bg = "#dcf8c6"
+        margin = "margin-left: auto; margin-right: 0;"
+    else:
+        # Bot: Abu-abu (sebelah kiri)
+        warna_bg = "#f1f0f0"
+        margin = "margin-right: auto; margin-left: 0;"
+
+    # A. Mengubah Markdown Gemini (misal: **bold**) menjadi HTML asli (misal: <strong>bold</strong>)
+    pesan_html = markdown.markdown(pesan)
+
+    # B. Escape kutip tunggal dalam string HTML untuk JavaScript
+    pesan_escaped = pesan_html.replace("'", "\\'")
+
+    # C. Membuat template HTML untuk pesan tunggal
+    bubble_html = f"""
+    <div class="message_bubble" style="background-color: {warna_bg}; padding: 12px 18px; border-radius: 15px; width: fit-content; max-width: 80%; {margin} box-shadow: 0px 2px 5px rgba(0,0,0,0.1); color: black;">
+        <b style="font-size: 0.85em; color: #555;">{pengirim}</b><br>
+        <div style="font-size: 1em; line-height: 1.5; margin-top: 5px;">{pesan_escaped}</div>
+    </div>
+    """
+
+    # D. Injeksi gelembung pesan baru ke dalam kontainer 'chat_history' di UI Frame
+    output.eval_js(f"document.getElementById('chat_history').innerHTML += '{bubble_html.replace('\n', '')}';")
+    # Otomatis scroll ke bawah
+    output.eval_js("var objDiv = document.getElementById('chat_area'); objDiv.scrollTop = objDiv.scrollHeight;")
+
+# -------------------------------------------------------------------------
+# 2. AREA PRE-RENDER UI: Munculkan Tampilan HTML BEFORE User Input
+# -------------------------------------------------------------------------
+print("="*50)
+print(f"🌍 SELAMAT DATANG DI PUSAT INFORMASI {COUNTRY_NAME.upper()} 🌍")
+print("="*50)
+print("Ketik 'keluar' untuk mengakhiri obrolan.\n")
+
+# A. Render Header Visual dan Kontainer Chat Utama (UI Frame)
+ui_frame_html = f"""
+<div id="chat_app" style="max-width: 600px; margin: 20px auto; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; border: 1px solid #ccc; border-radius: 10px; background-color: #f7f7f7; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">
+    <div style="background-color: #333; color: white; padding: 15px; text-align: center; border-radius: 10px 10px 0 0; position: relative;">
+        <div style="font-size: 1.3em; font-weight: bold;">Duta Besar Virtual {COUNTRY_NAME.upper()}</div>
+        <div style="font-size: 0.8em; color: #aaa; margin-top: 3px;">Karya Siswa SPINS: {CREATOR_NAME}</div>
+    </div>
+    <div id="chat_area" style="padding: 10px; height: 400px; overflow-y: scroll; display: flex; flex-direction: column; scroll-behavior: smooth;">
+        <div id="chat_history">
+            </div>
+    </div>
+</div>
+"""
+display(HTML(ui_frame_html)) # Langsung render tampilan dasar ini ke layar
+
+# B. Munculkan Sambutan Bot Pertama Kali Secara Visual BEFORE User Input
+# buat pesannya secara lokal agar UI muncul instan 0 detik
+welcome_msg_from_gemini = f"""
+Welcome to the **{COUNTRY_NAME}** Virtual Embassy! 🌍✨
+
+Hello, I am the AI Ambassador specially designed by **{CREATOR_NAME}**. I’m here to be your virtual guide as you explore the history, culture, top tourist spots, and signature cuisine of **{COUNTRY_NAME}**.
+*(Feel free to chat with me in English, Indonesian, Mandarin, or any other language!)*
+"""
+# Render pesan sambutan ke layar
+tampilkan_chat_profesional(f"Bot {COUNTRY_NAME}", welcome_msg_from_gemini, is_user=False)
+
+# -------------------------------------------------------------------------
+# 3. Eksekusi Program Utama (Loop)
+# -------------------------------------------------------------------------
+while True:
+    # Input sekarang hanya berupa kotak kosong tanpa label di bawah UI
+    pertanyaan = input()
+
+    if pertanyaan.lower() in ['keluar', 'exit', 'quit']:
+        tampilkan_chat_profesional(f"Bot {COUNTRY_NAME}", "Terima kasih telah berkunjung!", is_user=False)
+        break
+
+    if pertanyaan.strip() == "":
+        continue
+
+    # Tampilkan gelembung chat dari Kamu (Kanan)
+    tampilkan_chat_profesional("Kamu", pertanyaan, is_user=True)
+
+    try:
+        response = chat.send_message(pertanyaan)
+        # Tampilkan gelembung chat dari Bot (Kiri, dengan Markdown otomatis)
+        tampilkan_chat_profesional(f"Bot {COUNTRY_NAME}", response.text, is_user=False)
+    except Exception as e:
+        display(HTML(f'<div style="color:white; background-color:red; padding:10px; text-align:center; border-radius:10px; max-width: 600px; margin: auto;">[Sistem]: Error jaringan. (Detail: {e})</div>'))
