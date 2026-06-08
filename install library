@@ -1,0 +1,15 @@
+# install library
+!pip install -q -U google-genai
+!pip install -q markdown
+
+from IPython.display import display, HTML
+from google.colab import output
+import markdown
+
+print("Instalasi library visual selesai! ✅, Visual library installation complete! ✅")
+
+from google import genai
+from google.genai import types
+import getpass
+
+print("Instalasi library genai terbaru selesai! ✅, The latest Genai library installation is complete! ✅")
