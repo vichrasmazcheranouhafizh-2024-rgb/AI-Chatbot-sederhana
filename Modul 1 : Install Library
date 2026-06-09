@@ -1,0 +1,14 @@
+# install library
+!pip install -q groq
+!pip install -q markdown
+
+from IPython.display import display, HTML
+from google.colab import output
+import markdown
+import getpass
+
+print("Instalasi library visual selesai! ✅, Visual library installation complete! ✅")
+
+from groq import Groq
+
+print("Instalasi library Groq selesai! ✅, Groq library installation complete! ✅")
